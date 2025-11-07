@@ -37,9 +37,6 @@ export default function TrackMixer() {
         document.msFullscreenElement
       );
       setIsFullscreen(fs);
-      // toggle body class to prevent scrolling when in fullscreen
-      // if (fs) document.body.classList.add("no-scroll");
-      // else document.body.classList.remove("no-scroll");
       document.body.classList.add("no-scroll");
     }
 
@@ -106,10 +103,7 @@ export default function TrackMixer() {
   }, [isFullscreen]);
 
   function toggleFullscreen() {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
     if (!isFullscreen) {
-      // Try native Fullscreen API first
       const el = document.documentElement;
       const request =
         el.requestFullscreen ||
@@ -121,12 +115,19 @@ export default function TrackMixer() {
         return;
       }
 
-      // Fallback for browsers without Fullscreen API (iOS Safari)
-      if (isIOS) {
-        // simulate fullscreen by adding a pseudo-fullscreen class
-        document.body.classList.add("pseudo-fullscreen");
-        document.body.classList.add("no-scroll");
-        setIsFullscreen(true);
+      // Fullscreen API not available (common on iOS Safari).
+      // Inform the user because we can't force true fullscreen here.
+      try {
+        addLog(
+          "Fullscreen não suportado neste navegador. No iOS use 'Adicionar à Tela de Início' para comportamento semelhante ao fullscreen.",
+          "warning"
+        );
+      } catch (err) {
+        // fallback to alert if addLog isn't available for any reason
+        // eslint-disable-next-line no-alert
+        alert(
+          "Fullscreen não suportado neste navegador. No iOS use 'Adicionar à Tela de Início' para comportamento semelhante ao fullscreen."
+        );
       }
     } else {
       const exit =
@@ -134,15 +135,7 @@ export default function TrackMixer() {
         document.webkitExitFullscreen ||
         document.mozCancelFullScreen ||
         document.msExitFullscreen;
-      if (exit) {
-        exit.call(document);
-        return;
-      }
-
-      // exit pseudo-fullscreen fallback
-      document.body.classList.remove("pseudo-fullscreen");
-      document.body.classList.remove("no-scroll");
-      setIsFullscreen(false);
+      if (exit) exit.call(document);
     }
   }
 
