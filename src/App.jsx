@@ -18,10 +18,10 @@ export default function TrackMixer() {
   ];
 
   const tracks = [
-    { id: 1, name: "Ambient Pad", base: "AMBIENTE PAD" },
-    { id: 2, name: "Shimmer Pad", base: "SHIMMER PAD" },
+    // { id: 1, name: "Ambient Pad", base: "AMBIENTE PAD" },
+    // { id: 2, name: "Shimmer Pad", base: "SHIMMER PAD" },
     { id: 3, name: "Space Reverse Pad", base: "SPACE REVERSE PAD" },
-    { id: 4, name: "Warm Pad", base: "WARM PAD" },
+    // { id: 4, name: "Warm Pad", base: "WARM PAD" },
   ];
 
   const [currentNote, setCurrentNote] = useState(null);
@@ -59,7 +59,7 @@ export default function TrackMixer() {
 
     transport.seconds = 0;
 
-    const FADE_TIME = 4.0;
+    const FADE_TIME = 3.0;
     const crossFade = async (file, baseVolume, track) => {
       const playerA = new Tone.Player({
           url: file,
