@@ -92,21 +92,43 @@ export default function TrackMixer() {
   }, [isFullscreen]);
 
   function toggleFullscreen() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
     if (!isFullscreen) {
+      // Try native Fullscreen API first
       const el = document.documentElement;
       const request =
         el.requestFullscreen ||
         el.webkitRequestFullscreen ||
         el.mozRequestFullScreen ||
         el.msRequestFullscreen;
-      if (request) request.call(el);
+      if (request) {
+        request.call(el);
+        return;
+      }
+
+      // Fallback for browsers without Fullscreen API (iOS Safari)
+      if (isIOS) {
+        // simulate fullscreen by adding a pseudo-fullscreen class
+        document.body.classList.add("pseudo-fullscreen");
+        document.body.classList.add("no-scroll");
+        setIsFullscreen(true);
+      }
     } else {
       const exit =
         document.exitFullscreen ||
         document.webkitExitFullscreen ||
         document.mozCancelFullScreen ||
         document.msExitFullscreen;
-      if (exit) exit.call(document);
+      if (exit) {
+        exit.call(document);
+        return;
+      }
+
+      // exit pseudo-fullscreen fallback
+      document.body.classList.remove("pseudo-fullscreen");
+      document.body.classList.remove("no-scroll");
+      setIsFullscreen(false);
     }
   }
 
