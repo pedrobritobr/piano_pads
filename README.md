@@ -1,4 +1,37 @@
-# React + Vite
+# Piano Pads
+
+Aplicativo de pads musicais com controle de volume e mixagem.
+
+## Ambientes
+
+### Produção
+```bash
+npm run dev        # Desenvolvimento
+npm run build      # Build para produção
+```
+
+### QA (com logs e versão visível)
+```bash
+npm run dev:qa     # Desenvolvimento com logs
+npm run build:qa   # Build para QA
+```
+
+## Variáveis de Ambiente
+
+- `.env` - Ambiente de produção (padrão)
+- `.env.qa` - Ambiente de QA com logs e versão habilitados
+
+## Funcionalidades
+
+- 🎹 Pads de piano com múltiplas notas
+- 🎚️ Controle individual de volume por faixa
+- 🔇 Mute/Unmute por faixa
+- 📱 Layout responsivo (portrait/landscape)
+- 🔒 Wake Lock para manter a tela ativa
+- 📊 Console de logs (apenas em QA)
+- 🏷️ Exibição de versão (apenas em QA)
+
+## React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

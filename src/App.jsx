@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import packageJson from "../package.json";
 
+const isQA = import.meta.env.VITE_ENV === "qa";
+
 export default function TrackMixer() {
   const notes = [
     { key: "C", label: "Dó" },
@@ -40,6 +42,7 @@ export default function TrackMixer() {
 
   // Função helper para adicionar logs
   const addLog = (message, type = "info") => {
+    if (!isQA) return; // Só registra logs em ambiente QA
     const timestamp = new Date().toLocaleTimeString("pt-BR");
     setLogs((prev) => [
       ...prev.slice(-50), // Mantém apenas os últimos 50 logs
@@ -338,57 +341,62 @@ export default function TrackMixer() {
           ))}
         </div>
       </div>
-      
-      {/* Botão para mostrar/ocultar logs */}
-      <button
-        onClick={() => setShowLogs(!showLogs)}
-        className="fixed top-4 right-4 bg-gray-800 text-white px-3 py-2 rounded-lg shadow-lg text-xs font-semibold hover:bg-gray-700 transition z-50"
-      >
-        {showLogs ? "Ocultar Logs" : "Mostrar Logs"}
-      </button>
 
-      {/* Painel de Logs */}
-      {showLogs && (
-        <div className="fixed top-16 right-4 w-80 max-h-96 bg-gray-900 text-white rounded-lg shadow-2xl overflow-hidden z-40">
-          <div className="bg-gray-800 px-4 py-2 flex justify-between items-center">
-            <span className="font-semibold text-sm">Console de Logs</span>
-            <button
-              onClick={() => setLogs([])}
-              className="text-xs bg-red-500 hover:bg-red-600 px-2 py-1 rounded transition"
-            >
-              Limpar
-            </button>
+      {/* QA Tools - Versão, Logs e Botão */}
+      {isQA && (
+        <>
+          {/* Versão do App */}
+          <div className="fixed bottom-2 right-2 text-xs text-gray-400">
+            v{packageJson.version}
           </div>
-          <div className="overflow-y-auto max-h-80 p-3 space-y-1 text-xs font-mono">
-            {logs.length === 0 ? (
-              <div className="text-gray-400 text-center py-4">Nenhum log ainda</div>
-            ) : (
-              logs.map((log) => (
-                <div
-                  key={log.id}
-                  className={`p-2 rounded ${
-                    log.type === "error"
-                      ? "bg-red-900/50 text-red-200"
-                      : log.type === "warning"
-                      ? "bg-yellow-900/50 text-yellow-200"
-                      : log.type === "success"
-                      ? "bg-green-900/50 text-green-200"
-                      : "bg-gray-800 text-gray-300"
-                  }`}
+
+          {/* Painel de Logs */}
+          {showLogs && (
+            <div className="fixed bottom-16 left-4 right-4 max-w-3xl mx-auto h-64 bg-gray-900 text-white rounded-lg shadow-2xl overflow-hidden z-40">
+              <div className="bg-gray-800 px-4 py-2 flex justify-between items-center">
+                <span className="font-semibold text-sm">Console de Logs</span>
+                <button
+                  onClick={() => setLogs([])}
+                  className="text-xs bg-red-500 hover:bg-red-600 px-2 py-1 rounded transition"
                 >
-                  <span className="text-gray-500">[{log.timestamp}]</span>{" "}
-                  {log.message}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+                  Limpar
+                </button>
+              </div>
+              <div className="overflow-y-auto h-[calc(100%-2.5rem)] p-3 space-y-1 text-xs font-mono">
+                {logs.length === 0 ? (
+                  <div className="text-gray-400 text-center py-4">Nenhum log ainda</div>
+                ) : (
+                  logs.map((log) => (
+                    <div
+                      key={log.id}
+                      className={`p-2 rounded ${
+                        log.type === "error"
+                          ? "bg-red-900/50 text-red-200"
+                          : log.type === "warning"
+                          ? "bg-yellow-900/50 text-yellow-200"
+                          : log.type === "success"
+                          ? "bg-green-900/50 text-green-200"
+                          : "bg-gray-800 text-gray-300"
+                      }`}
+                    >
+                      <span className="text-gray-500">[{log.timestamp}]</span>{" "}
+                      {log.message}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Botão para mostrar/ocultar logs */}
+          <button
+            onClick={() => setShowLogs(!showLogs)}
+            className="fixed bottom-2 left-2 bg-gray-800 text-white px-3 py-2 rounded-lg shadow-lg text-xs font-semibold hover:bg-gray-700 transition z-50"
+          >
+            {showLogs ? "Ocultar Logs" : "Mostrar Logs"}
+          </button>
+        </>
       )}
-      
-      {/* Versão do App */}
-      <div className="fixed bottom-2 right-2 text-xs text-gray-400">
-        v{packageJson.version}
-      </div>
     </div>
   );
 }
