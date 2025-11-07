@@ -126,8 +126,7 @@ export function useAudioPlayer(addLog) {
 
     for (const track of tracks) {
       // Vamos carregar sempre a nota C e transpor para a nota desejada
-      const baseFile = `/samples/SHIMMER PAD/C.mp3`;
-      const fallbackFile = `/samples/SHIMMER PAD/${newNote}.mp3`;
+      const baseFile = `/samples/${track.base}.mp3`;
       const baseVolume = muted[track.id] ? 0 : volumes[track.id] ?? 0.8;
 
       addLog?.(`Carregando (transpondo a partir de C): ${track.name} -> ${newNote} (${semitone} semitons)`, "info");
@@ -138,12 +137,7 @@ export function useAudioPlayer(addLog) {
         try {
           await crossFade(baseFile, baseVolume, track, semitone);
         } catch (err) {
-          addLog?.(`Falha carregando C para ${track.name}, tentando arquivo direto: ${fallbackFile}`, "warning");
-          try {
-            await crossFade(fallbackFile, baseVolume, track, 0);
-          } catch (err2) {
-            addLog?.(`Erro ao carregar amostra para ${track.name}: ${err2?.message ?? err2}`, "error");
-          }
+          addLog?.(`Erro ao carregar amostra para ${track.name}: ${err2?.message ?? err2}`, "error");
         }
       };
 
