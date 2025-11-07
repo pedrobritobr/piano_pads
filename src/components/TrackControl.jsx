@@ -18,10 +18,9 @@ export function TrackControl({ track, volume, muted, isLandscape, onVolumeChange
               onChange={(e) => onVolumeChange(track.id, e.target.valueAsNumber / 100, track.name)}
               aria-label={`Volume da faixa ${track.name}`}
               style={{
-                transform: "rotate(-90deg)",
                 width: "150px",
               }}
-              className="appearance-none h-2 bg-gray-300 rounded-lg cursor-pointer"
+              className="track-range vertical-range appearance-none h-2 bg-gray-300 rounded-lg cursor-pointer"
             />
           </div>
 
@@ -46,7 +45,7 @@ export function TrackControl({ track, volume, muted, isLandscape, onVolumeChange
             value={Math.round(volume * 100)}
             onChange={(e) => onVolumeChange(track.id, e.target.valueAsNumber / 100, track.name)}
             aria-label={`Volume da faixa ${track.name}`}
-            className="appearance-none w-full h-2 bg-gray-300 rounded-lg cursor-pointer"
+            className="track-range appearance-none w-full h-2 bg-gray-300 rounded-lg cursor-pointer"
           />
           <button
             onClick={() => onToggleMute(track.id, track.name)}

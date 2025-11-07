@@ -10,6 +10,7 @@ import { TrackControl } from "./components/TrackControl";
 import { LogsPanel } from "./components/LogsPanel";
 
 export default function TrackMixer() {
+  const [isFullscreen, setIsFullscreen] = React.useState(false);
   const { logs, showLogs, addLog, clearLogs, toggleLogs, isQA } = useLogs();
   const { showWakeLockPrompt, handleWakeLockAccept, handleWakeLockDecline } = useWakeLock(addLog);
   const {
@@ -27,8 +28,98 @@ export default function TrackMixer() {
     addLog("Aplicativo inicializado", "success");
   }, []);
 
+  useEffect(() => {
+    function onFullScreenChange() {
+      const fs = !!(
+        document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement
+      );
+      setIsFullscreen(fs);
+      // toggle body class to prevent scrolling when in fullscreen
+      // if (fs) document.body.classList.add("no-scroll");
+      // else document.body.classList.remove("no-scroll");
+      document.body.classList.add("no-scroll");
+    }
+
+    document.addEventListener("fullscreenchange", onFullScreenChange);
+    document.addEventListener("webkitfullscreenchange", onFullScreenChange);
+    document.addEventListener("mozfullscreenchange", onFullScreenChange);
+    document.addEventListener("MSFullscreenChange", onFullScreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", onFullScreenChange);
+      document.removeEventListener("webkitfullscreenchange", onFullScreenChange);
+      document.removeEventListener("mozfullscreenchange", onFullScreenChange);
+      document.removeEventListener("MSFullscreenChange", onFullScreenChange);
+    };
+  }, []);
+
+  // Prevent zoom and scroll behaviors while fullscreen is active
+  useEffect(() => {
+    function onWheel(e) {
+      if (e.ctrlKey) e.preventDefault();
+    }
+
+    function onKeyDown(e) {
+      // prevent Ctrl/Cmd + +/-/0 and Ctrl/Cmd + mousewheel zoom shortcuts
+      if ((e.ctrlKey || e.metaKey) && ["=", "+", "-", "0"].includes(e.key)) {
+        e.preventDefault();
+      }
+    }
+
+    function onTouchMove(e) {
+      // prevent pinch/scroll if fullscreen
+      if (isFullscreen) e.preventDefault();
+    }
+
+    if (isFullscreen) {
+      window.addEventListener("wheel", onWheel, { passive: false });
+      window.addEventListener("keydown", onKeyDown, { passive: false });
+      window.addEventListener("touchmove", onTouchMove, { passive: false });
+    } else {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("touchmove", onTouchMove);
+    }
+
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("touchmove", onTouchMove);
+    };
+  }, [isFullscreen]);
+
+  function toggleFullscreen() {
+    if (!isFullscreen) {
+      const el = document.documentElement;
+      const request =
+        el.requestFullscreen ||
+        el.webkitRequestFullscreen ||
+        el.mozRequestFullScreen ||
+        el.msRequestFullscreen;
+      if (request) request.call(el);
+    } else {
+      const exit =
+        document.exitFullscreen ||
+        document.webkitExitFullscreen ||
+        document.mozCancelFullScreen ||
+        document.msExitFullscreen;
+      if (exit) exit.call(document);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 p-6 flex flex-col items-center">
+      <div className="w-full flex justify-end mb-2">
+        <button
+          onClick={toggleFullscreen}
+          className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md shadow-sm"
+        >
+          {isFullscreen ? "Sair Fullscreen" : "Entrar Fullscreen"}
+        </button>
+      </div>
       {/* Popup de Wake Lock */}
       {showWakeLockPrompt && (
         <WakeLockPrompt 
