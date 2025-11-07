@@ -70,8 +70,22 @@ export default function TrackMixer() {
     }
 
     function onTouchMove(e) {
-      // prevent pinch/scroll if fullscreen
-      if (isFullscreen) e.preventDefault();
+      // prevent pinch/scroll if fullscreen, but allow interaction with range inputs
+      if (!isFullscreen) return;
+      try {
+        const target = e.target;
+        if (target && (target.tagName === 'INPUT' && target.type === 'range')) {
+          // allow default to let the slider drag
+          return;
+        }
+        // if touch originates inside a range (thumb), allow it
+        if (target && target.closest && target.closest('input[type="range"]')) {
+          return;
+        }
+      } catch (err) {
+        // if anything goes wrong, fall back to preventing default to avoid scroll
+      }
+      e.preventDefault();
     }
 
     if (isFullscreen) {

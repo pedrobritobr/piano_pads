@@ -75,3 +75,12 @@
 	height: 100vh !important;
 }
 
+/* permitir interação em inputs range mesmo quando .no-scroll estiver ativa */
+.no-scroll input[type="range"],
+.no-scroll .track-range {
+	touch-action: auto !important;
+	-webkit-user-select: none !important;
+	user-select: none !important;
+}
+
+
