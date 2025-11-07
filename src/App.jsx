@@ -59,7 +59,7 @@ export default function TrackMixer() {
 
     transport.seconds = 0;
 
-    const FADE_TIME = 3.0;
+    const FADE_TIME = 0.5;
     const crossFade = async (file, baseVolume, track) => {
       const playerA = new Tone.Player({
           url: file,
