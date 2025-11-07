@@ -33,6 +33,7 @@ export default function TrackMixer() {
 
   const playerRefs = useRef({});
   const transport = Tone.getTransport();
+  const wakeLockRef = useRef(null);
 
   useEffect(() => {
     const initVolumes = {};
@@ -47,7 +48,38 @@ export default function TrackMixer() {
     const listener = (e) => setIsLandscape(e.matches);
     const mq = window.matchMedia("(orientation: landscape)");
     mq.addEventListener("change", listener);
-    return () => mq.removeEventListener("change", listener);
+
+    // Ativa o Wake Lock para manter a tela ligada
+    const requestWakeLock = async () => {
+      try {
+        if ("wakeLock" in navigator) {
+          wakeLockRef.current = await navigator.wakeLock.request("screen");
+          console.log("Wake Lock ativado - tela permanecerá ligada");
+        }
+      } catch (err) {
+        console.error("Erro ao ativar Wake Lock:", err);
+      }
+    };
+
+    requestWakeLock();
+
+    // Reativa o Wake Lock quando a página volta a ficar visível
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && wakeLockRef.current === null) {
+        requestWakeLock();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      mq.removeEventListener("change", listener);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (wakeLockRef.current) {
+        wakeLockRef.current.release();
+        wakeLockRef.current = null;
+      }
+    };
   }, []);
 
   const handleNoteClick = async (noteKey) => {
