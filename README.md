@@ -75,3 +75,18 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+## Nota sobre Tailwind
+
+Este repositório teve a configuração do Tailwind removida (arquivos de configuração e diretivas CSS). Se você estiver migrando do Tailwind para CSS puro, execute localmente os comandos abaixo para remover os pacotes das dependências instaladas e reconstruir o projeto:
+
+```bash
+# remover pacotes do Tailwind/PostCSS instalados localmente
+npm uninstall tailwindcss postcss autoprefixer
+
+# reinstalar dependências e rodar dev/build
+npm install
+npm run dev    # ou npm run build
+```
+
+Observação: os componentes ainda podem usar classes utilitárias do Tailwind (por exemplo: `className="flex items-center ..."`). Esses utilitários não terão efeito após a remoção do Tailwind. Posso ajudar a substituir as classes Tailwind por classes CSS ou criar um conjunto de utilitários CSS mínimo para o projeto — diga qual abordagem prefere.

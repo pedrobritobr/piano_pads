@@ -140,7 +140,7 @@ export default function TrackMixer() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 flex flex-col items-center">
+    <div>
       {/* Popup de Wake Lock */}
       {showWakeLockPrompt && (
         <WakeLockPrompt 
@@ -149,21 +149,9 @@ export default function TrackMixer() {
         />
       )}
 
-      <div
-        className={`w-full max-w-5xl ${
-          isLandscape
-            ? "flex flex-row justify-between items-start"
-            : "flex flex-col items-center"
-        }`}
-      >
+      <div>
         {/* Notes */}
-        <div
-          className={`mb-4 ${
-            isLandscape
-              ? "w-1/3 grid grid-cols-3 grid-rows-4"
-              : "flex flex-wrap justify-center gap-x-8 gap-y-4 w-full"
-          }`}
-        >
+        <div>
           {notes.map((n) => (
             <NoteButton
               key={n.key}
@@ -173,30 +161,18 @@ export default function TrackMixer() {
               isLandscape={isLandscape}
             />
           ))}
-          <div className="mt-8 flex justify-between items-center w-full max-w-5xl">
-            <button
-              onClick={stopAll}
-              className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition"
-            >
+          <div>
+            <button onClick={stopAll}>
               Parar
             </button>
-            <button
-              onClick={toggleFullscreen}
-              className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md shadow-sm"
-            >
+            <button onClick={toggleFullscreen}>
               {isFullscreen ? "Sair Fullscreen" : "Entrar Fullscreen"}
             </button>
           </div>
         </div>
 
         {/* Tracks */}
-        <div
-          className={`${
-            isLandscape
-              ? "w-2/3 grid grid-cols-7 grid-rows-2 justify-items-center"
-              : "w-full flex flex-col items-center"
-          }`}
-        >
+        <div>
           {tracks.map((track) => (
             <TrackControl
               key={track.base}
@@ -211,8 +187,8 @@ export default function TrackMixer() {
         </div>
       </div>
 
-      <div className="w-full flex justify-end mb-2">
-      </div>
+  <div>
+  </div>
       {/* QA Tools */}
       {isQA && (
         <LogsPanel
