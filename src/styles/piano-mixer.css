@@ -1,0 +1,56 @@
+/* piano-mixer.css */
+.notes-panel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.note-button {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background-color: #f3f4f6;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.note-button.active {
+  background-color: #6366f1;
+  color: white;
+}
+
+.track-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  width: 100%;
+  max-width: 200px;
+}
+
+.vertical-fader {
+  writing-mode: bt-lr;
+  -webkit-appearance: slider-vertical;
+  appearance: slider-vertical;
+  width: 6px;
+  height: 150px;
+}
+
+/* Landscape */
+@media (orientation: landscape) {
+  .track-card { width: 80px; }
+  .note-button { width: 60px; height: 60px; }
+}
+
+/* Portrait */
+@media (orientation: portrait) {
+  .track-card { width: 100%; max-width: 260px; }
+  .note-button { width: 70px; height: 70px; }
+}
