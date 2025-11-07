@@ -30,7 +30,7 @@ export function useAudioPlayer(addLog) {
   volumesRef.current = volumes;
   mutedRef.current = muted;
 
-  const crossFade = async (file, baseVolume, track) => {
+  const crossFade = async (file, baseVolume, track, semitoneOffset = 0) => {
     const playerA = new Tone.Player({
       url: file,
       loop: true,
@@ -45,10 +45,24 @@ export function useAudioPlayer(addLog) {
 
     await Promise.all([playerA.load(file), playerB.load(file)]);
 
+    // Aplica transposição via playbackRate (2^(semitones/12)).
+    const playbackRate = Math.pow(2, semitoneOffset / 12);
+    try {
+      playerA.playbackRate = playbackRate;
+      playerB.playbackRate = playbackRate;
+    } catch (e) {
+      // Dependendo da versão do Tone, a propriedade pode ser diferente. Tentativa alternativa:
+      if (playerA.playbackRate && playerA.playbackRate.value !== undefined) {
+        playerA.playbackRate.value = playbackRate;
+        playerB.playbackRate.value = playbackRate;
+      }
+    }
+
     playerA.volume.value = Tone.gainToDb(baseVolume);
     playerB.volume.value = -Infinity;
 
-    const duration = playerA.buffer.duration;
+    // Ajusta duração do loop com base no playbackRate
+    const duration = playerA.buffer.duration / (playbackRate || 1);
     let current = playerA;
     let next = playerB;
 
@@ -94,7 +108,9 @@ export function useAudioPlayer(addLog) {
     transport.cancel(0);
   };
 
-  const handleNoteClick = async (noteKey) => {
+  const handleNoteClick = async (noteKey, semitone) => {
+    console.log(noteKey);
+
     const newNote = currentNote === noteKey ? null : noteKey;
     setCurrentNote(newNote);
     stopAll();
@@ -109,11 +125,29 @@ export function useAudioPlayer(addLog) {
     transport.seconds = 0;
 
     for (const track of tracks) {
-      const file = `/samples/${track.base}/${newNote}.mp3`;
+      // Vamos carregar sempre a nota C e transpor para a nota desejada
+      const baseFile = `/samples/SHIMMER PAD/C.mp3`;
+      const fallbackFile = `/samples/SHIMMER PAD/${newNote}.mp3`;
       const baseVolume = muted[track.id] ? 0 : volumes[track.id] ?? 0.8;
 
-      addLog?.(`Carregando: ${track.name}`, "info");
-      crossFade(file, baseVolume, track);
+      addLog?.(`Carregando (transpondo a partir de C): ${track.name} -> ${newNote} (${semitone} semitons)`, "info");
+
+      // crossFade agora aceita um terceiro parâmetro "semitone" opcional via closure
+      // implementamos carregamento tentando primeiro o C e, em caso de falha, usar o arquivo da nota direta
+      const tryLoadAndCrossfade = async () => {
+        try {
+          await crossFade(baseFile, baseVolume, track, semitone);
+        } catch (err) {
+          addLog?.(`Falha carregando C para ${track.name}, tentando arquivo direto: ${fallbackFile}`, "warning");
+          try {
+            await crossFade(fallbackFile, baseVolume, track, 0);
+          } catch (err2) {
+            addLog?.(`Erro ao carregar amostra para ${track.name}: ${err2?.message ?? err2}`, "error");
+          }
+        }
+      };
+
+      tryLoadAndCrossfade();
     }
 
     if (transport.state !== "started") {

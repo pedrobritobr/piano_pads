@@ -3,7 +3,7 @@ import React from "react";
 export function NoteButton({ note, isActive, onClick, isLandscape }) {
   return (
     <button
-      onClick={() => onClick(note.key)}
+      onClick={() => onClick(note.key, note.semitone)}
       className={`rounded-xl font-semibold transition-all flex items-center justify-center
         ${
           isActive

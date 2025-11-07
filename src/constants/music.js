@@ -1,16 +1,16 @@
 export const notes = [
-  { key: "C" },
-  { key: "Cb" },
-  { key: "D" },
-  { key: "Db" },
-  { key: "E" },
-  { key: "F" },
-  { key: "Fb" },
-  { key: "G" },
-  { key: "Gb" },
-  { key: "A" },
-  { key: "Ab" },
-  { key: "B" },
+  { key: "C", semitone: 0 },
+  { key: "C#", semitone: 1 },
+  { key: "D", semitone: 2 },
+  { key: "D#", semitone: 3 },
+  { key: "E", semitone: 4 },
+  { key: "F", semitone: 5 },
+  { key: "F#", semitone: 6 },
+  { key: "G", semitone: -5 },
+  { key: "G#", semitone: -4 },
+  { key: "A", semitone: -3 },
+  { key: "A#", semitone: -2 },
+  { key: "B", semitone: -1 },
 ];
 
 export const tracks = [
