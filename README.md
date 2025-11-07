@@ -21,6 +21,34 @@ npm run build:qa   # Build para QA
 - `.env` - Ambiente de produção (padrão)
 - `.env.qa` - Ambiente de QA com logs e versão habilitados
 
+## Versionamento Automático
+
+O projeto está configurado para **incrementar automaticamente a versão** a cada commit:
+
+- ✅ **Automático**: Ao fazer `git commit`, a versão patch é incrementada (ex: 1.2.1 → 1.2.2)
+- ✅ **Git Hook**: Usa `.git/hooks/pre-commit` para executar antes do commit
+- ✅ **Incluído no commit**: O `package.json` atualizado é automaticamente adicionado
+
+### Comandos Manuais (Opcionais)
+
+Se preferir controlar manualmente:
+
+```bash
+npm run version:patch  # 1.2.1 → 1.2.2 (bugfix)
+npm run version:minor  # 1.2.1 → 1.3.0 (nova feature)
+npm run version:major  # 1.2.1 → 2.0.0 (breaking change)
+```
+
+### Como Funciona
+
+1. Você faz alterações no código
+2. Executa `git add .`
+3. Executa `git commit -m "sua mensagem"`
+4. **O hook pre-commit é acionado automaticamente**:
+   - Incrementa a versão patch
+   - Adiciona `package.json` ao commit
+5. Commit é finalizado com a nova versão
+
 ## Funcionalidades
 
 - 🎹 Pads de piano com múltiplas notas

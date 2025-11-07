@@ -1,0 +1,8 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Incrementa a versão patch automaticamente
+npm version patch --no-git-tag-version
+
+# Adiciona o package.json ao commit
+git add package.json
