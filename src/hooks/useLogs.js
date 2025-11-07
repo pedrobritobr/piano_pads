@@ -7,6 +7,7 @@ export function useLogs() {
   const [showLogs, setShowLogs] = useState(false);
 
   const addLog = (message, type = "info") => {
+    console.log(`[${type.toUpperCase()}] ${message}`);
     if (!isQA) return; // Só registra logs em ambiente QA
     const timestamp = new Date().toLocaleTimeString("pt-BR");
     setLogs((prev) => [

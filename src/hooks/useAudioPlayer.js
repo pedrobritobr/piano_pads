@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import * as Tone from "tone";
-import { tracks } from "../constants/music";
+import { tracks, notes } from "../constants/music";
 
 export function useAudioPlayer(addLog) {
   const [currentNote, setCurrentNote] = useState(null);
@@ -128,6 +128,12 @@ export function useAudioPlayer(addLog) {
       // Vamos carregar sempre a nota C e transpor para a nota desejada
       const baseFile = `/samples/${track.base}.mp3`;
       const baseVolume = muted[track.id] ? 0 : volumes[track.id] ?? 0.8;
+      // Se a faixa está mutada, não carregamos nem iniciamos o crossfade
+      const isMuted = muted[track.id] ?? mutedRef.current[track.id];
+      if (isMuted) {
+        addLog?.(`Pulado carregamento de ${track.name} porque está mutado`, "info");
+        continue;
+      }
 
       addLog?.(`Carregando (transpondo a partir de C): ${track.name} -> ${newNote} (${semitone} semitons)`, "info");
 
@@ -137,7 +143,7 @@ export function useAudioPlayer(addLog) {
         try {
           await crossFade(baseFile, baseVolume, track, semitone);
         } catch (err) {
-          addLog?.(`Erro ao carregar amostra para ${track.name}: ${err2?.message ?? err2}`, "error");
+          addLog?.(`Erro ao carregar amostra para ${track.name}: ${err?.message ?? err}`, "error");
         }
       };
 
@@ -162,18 +168,71 @@ export function useAudioPlayer(addLog) {
   };
 
   const toggleMute = (trackId, trackName) => {
-    setMuted((prev) => {
-      const newMuted = !prev[trackId];
-      addLog?.(`${trackName}: ${newMuted ? "Mutado" : "Desmutado"}`, "info");
-      
-      const refs = playerRefs.current[trackId];
+    // Determina novo estado de mute a partir do estado atual
+    const newMuted = !muted[trackId];
+
+    // Atualiza estado React e a ref de forma determinística
+    setMuted((prev) => ({ ...prev, [trackId]: newMuted }));
+    mutedRef.current = { ...mutedRef.current, [trackId]: newMuted };
+
+    addLog?.(`${trackName}: ${newMuted ? "Mutado" : "Desmutado"}`, "info");
+
+    const refs = playerRefs.current[trackId];
+
+    if (newMuted) {
+      // Ao mutar: se existirem players, parar e descartá-los
       if (refs) {
-        const newVol = newMuted ? 0 : volumes[trackId] ?? 0.8;
-        refs.playerA.volume.value = Tone.gainToDb(newVol);
-        refs.playerB.volume.value = Tone.gainToDb(newVol);
+        try {
+          refs.playerA.stop();
+        } catch {}
+        try {
+          refs.playerB.stop();
+        } catch {}
+        try {
+          refs.playerA.dispose?.();
+        } catch {}
+        try {
+          refs.playerB.dispose?.();
+        } catch {}
+        delete playerRefs.current[trackId];
       }
-      return { ...prev, [trackId]: newMuted };
-    });
+      addLog?.(`${trackName}: áudio descarregado`, "info");
+      return;
+    }
+
+    // Ao desmutar:
+    // - Se já temos players, apenas restaura o volume.
+    // - Se não temos players e o transport está tocando com uma nota selecionada, recarrega a amostra.
+    if (refs) {
+      const newVol = volumes[trackId] ?? 0.8;
+      try {
+        refs.playerA.volume.value = Tone.gainToDb(newVol);
+      } catch {}
+      try {
+        refs.playerB.volume.value = Tone.gainToDb(newVol);
+      } catch {}
+      return;
+    }
+
+    // Não há players; se estivermos em reprodução, recria a faixa
+    if (transport.state === "started" && currentNote) {
+      const track = tracks.find((t) => t.id === trackId);
+      if (!track) return;
+
+      const noteObj = notes.find((n) => n.key === currentNote);
+      const semitone = noteObj ? noteObj.semitone : 0;
+      const baseFile = `/samples/${track.base}.mp3`;
+      const baseVolume = volumes[trackId] ?? 0.8;
+
+      addLog?.(`${trackName}: recarregando áudio após desmutar`, "info");
+      (async () => {
+        try {
+          await crossFade(baseFile, baseVolume, track, semitone);
+        } catch (err) {
+          addLog?.(`Erro ao recarregar amostra para ${track.name}: ${err?.message ?? err}`, "error");
+        }
+      })();
+    }
   };
 
   return {
