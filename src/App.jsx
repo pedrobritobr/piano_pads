@@ -168,7 +168,7 @@ export default function TrackMixer() {
         <div
           className={`mb-4 ${
             isLandscape
-              ? "w-1/3 grid grid-cols-4 grid-rows-3 gap-x-8 gap-y-4"
+              ? "w-1/3 grid grid-cols-4 grid-rows-3 gap-x-20 gap-y-4"
               : "flex flex-wrap justify-center gap-x-8 gap-y-4 w-full"
           }`}
         >
