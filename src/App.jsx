@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
+import packageJson from "../package.json";
 
 export default function TrackMixer() {
   const notes = [
@@ -306,6 +307,11 @@ export default function TrackMixer() {
             </div>
           ))}
         </div>
+      </div>
+      
+      {/* Versão do App */}
+      <div className="fixed bottom-2 right-2 text-xs text-gray-400">
+        v{packageJson.version}
       </div>
     </div>
   );
