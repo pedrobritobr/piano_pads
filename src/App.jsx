@@ -137,8 +137,10 @@ export default function TrackMixer() {
       >
         {/* Notes */}
         <div
-          className={`flex flex-wrap justify-center gap-2 mb-4 ${
-            isLandscape ? "w-1/3" : "w-full"
+          className={`mb-4 ${
+            isLandscape
+              ? "w-1/3 grid grid-cols-4 grid-rows-3 gap-2"
+              : "flex flex-wrap justify-center gap-2 w-full"
           }`}
         >
           {notes.map((n) => (
