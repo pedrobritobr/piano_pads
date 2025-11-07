@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { notes, tracks } from "./constants/music";
+import { notes, tracks, defaultVolume } from "./constants/music";
 import { useLogs } from "./hooks/useLogs";
 import { useWakeLock } from "./hooks/useWakeLock";
 import { useAudioPlayer } from "./hooks/useAudioPlayer";
@@ -141,14 +141,6 @@ export default function TrackMixer() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 flex flex-col items-center">
-      <div className="w-full flex justify-end mb-2">
-        <button
-          onClick={toggleFullscreen}
-          className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md shadow-sm"
-        >
-          {isFullscreen ? "Sair Fullscreen" : "Entrar Fullscreen"}
-        </button>
-      </div>
       {/* Popup de Wake Lock */}
       {showWakeLockPrompt && (
         <WakeLockPrompt 
@@ -168,7 +160,7 @@ export default function TrackMixer() {
         <div
           className={`mb-4 ${
             isLandscape
-              ? "w-1/3 grid grid-cols-4 grid-rows-3 gap-x-20 gap-y-4"
+              ? "w-1/3 grid grid-cols-3 grid-rows-4"
               : "flex flex-wrap justify-center gap-x-8 gap-y-4 w-full"
           }`}
         >
@@ -193,18 +185,18 @@ export default function TrackMixer() {
 
         {/* Tracks */}
         <div
-          className={`flex gap-2 ${
+          className={`${
             isLandscape
-              ? "w-2/3 flex-row justify-center"
-              : "w-full flex-col items-center"
+              ? "w-2/3 grid grid-cols-7 grid-rows-2 justify-items-center"
+              : "w-full flex flex-col items-center"
           }`}
         >
           {tracks.map((track) => (
             <TrackControl
-              key={track.id}
+              key={track.base}
               track={track}
-              volume={volumes[track.id] ?? 0.8}
-              muted={muted[track.id]}
+              volume={volumes[track.base] ?? defaultVolume}
+              muted={muted[track.base]}
               isLandscape={isLandscape}
               onVolumeChange={handleVolumeChange}
               onToggleMute={toggleMute}
@@ -213,6 +205,14 @@ export default function TrackMixer() {
         </div>
       </div>
 
+      <div className="w-full flex justify-end mb-2">
+        <button
+          onClick={toggleFullscreen}
+          className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md shadow-sm"
+        >
+          {isFullscreen ? "Sair Fullscreen" : "Entrar Fullscreen"}
+        </button>
+      </div>
       {/* QA Tools */}
       {isQA && (
         <LogsPanel

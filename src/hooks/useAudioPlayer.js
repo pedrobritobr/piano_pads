@@ -1,20 +1,20 @@
 import { useRef, useState } from "react";
 import * as Tone from "tone";
-import { tracks, notes } from "../constants/music";
+import { tracks, notes, defaultVolume } from "../constants/music";
 
 export function useAudioPlayer(addLog) {
   const [currentNote, setCurrentNote] = useState(null);
   const [volumes, setVolumes] = useState(() => {
     const initVolumes = {};
     tracks.forEach((t) => {
-      initVolumes[t.id] = 0.8;
+      initVolumes[t.base] = defaultVolume;
     });
     return initVolumes;
   });
   const [muted, setMuted] = useState(() => {
     const initMuted = {};
     tracks.forEach((t) => {
-      initMuted[t.id] = false;
+      initMuted[t.base] = true;
     });
     return initMuted;
   });
@@ -76,7 +76,7 @@ export function useAudioPlayer(addLog) {
         if (!next.buffer.loaded) return;
 
         // Obtém o volume atual no momento do loop
-        const currentVolume = mutedRef.current[track.id] ? 0 : volumesRef.current[track.id] ?? 0.8;
+  const currentVolume = mutedRef.current[track.base] ? 0 : volumesRef.current[track.base] ?? defaultVolume;
 
         next.start(startAt);
         next.volume.cancelAndHoldAtTime(time);
@@ -92,7 +92,7 @@ export function useAudioPlayer(addLog) {
 
     scheduleNext(startAt);
 
-    playerRefs.current[track.id] = { playerA, playerB };
+    playerRefs.current[track.base] = { playerA, playerB };
   };
 
   const stopAll = () => {
@@ -126,10 +126,10 @@ export function useAudioPlayer(addLog) {
 
     for (const track of tracks) {
       // Vamos carregar sempre a nota C e transpor para a nota desejada
-      const baseFile = `/samples/${track.base}.mp3`;
-      const baseVolume = muted[track.id] ? 0 : volumes[track.id] ?? 0.8;
+      const baseFile = `/pads/${track.base}.mp3`;
+  const baseVolume = muted[track.base] ? 0 : volumes[track.base] ?? defaultVolume;
       // Se a faixa está mutada, não carregamos nem iniciamos o crossfade
-      const isMuted = muted[track.id] ?? mutedRef.current[track.id];
+      const isMuted = muted[track.base] ?? mutedRef.current[track.base];
       if (isMuted) {
         addLog?.(`Pulado carregamento de ${track.name} porque está mutado`, "info");
         continue;
@@ -204,7 +204,7 @@ export function useAudioPlayer(addLog) {
     // - Se já temos players, apenas restaura o volume.
     // - Se não temos players e o transport está tocando com uma nota selecionada, recarrega a amostra.
     if (refs) {
-      const newVol = volumes[trackId] ?? 0.8;
+  const newVol = volumes[trackId] ?? defaultVolume;
       try {
         refs.playerA.volume.value = Tone.gainToDb(newVol);
       } catch {}
@@ -216,13 +216,13 @@ export function useAudioPlayer(addLog) {
 
     // Não há players; se estivermos em reprodução, recria a faixa
     if (transport.state === "started" && currentNote) {
-      const track = tracks.find((t) => t.id === trackId);
+      const track = tracks.find((t) => t.base === trackId);
       if (!track) return;
 
       const noteObj = notes.find((n) => n.key === currentNote);
       const semitone = noteObj ? noteObj.semitone : 0;
-      const baseFile = `/samples/${track.base}.mp3`;
-      const baseVolume = volumes[trackId] ?? 0.8;
+      const baseFile = `/pads/${track.base}.mp3`;
+  const baseVolume = volumes[trackId] ?? defaultVolume;
 
       addLog?.(`${trackName}: recarregando áudio após desmutar`, "info");
       (async () => {

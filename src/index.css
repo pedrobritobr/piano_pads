@@ -69,18 +69,18 @@
 
 /* Classe para desabilitar scroll/zoom quando ativa */
 .no-scroll {
-	overflow: hidden !important;
-	touch-action: none !important; /* evita pan/pinch em touch */
-	overscroll-behavior: none !important; /* previne bounce/scroll */
-	height: 100vh !important;
+	/* overflow: hidden !important;
+	touch-action: none !important;
+	overscroll-behavior: none !important;
+	height: 100vh !important; */
 }
 
 /* permitir interação em inputs range mesmo quando .no-scroll estiver ativa */
 .no-scroll input[type="range"],
 .no-scroll .track-range {
-	touch-action: auto !important;
+	/* touch-action: auto !important;
 	-webkit-user-select: none !important;
-	user-select: none !important;
+	user-select: none !important; */
 }
 
 /* pseudo-fullscreen fallback for platforms without Fullscreen API (iOS)

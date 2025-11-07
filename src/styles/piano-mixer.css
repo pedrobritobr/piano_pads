@@ -40,13 +40,14 @@
   -webkit-appearance: slider-vertical;
   appearance: slider-vertical;
   width: 6px;
-  height: 150px;
+  height: 100px;
+  transform: rotate(180deg);
 }
 
 /* Landscape */
 @media (orientation: landscape) {
-  .track-card { width: 80px; }
-  .note-button { width: 60px; height: 60px; }
+  .track-card { width: 72px; }
+  .note-button { width: 56px; height: 56px; }
 }
 
 /* Portrait */

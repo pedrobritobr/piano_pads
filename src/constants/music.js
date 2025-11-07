@@ -14,8 +14,21 @@ export const notes = [
 ];
 
 export const tracks = [
-  { id: 1, name: "Ambient Pad", base: "AMBIENTE PAD" },
-  { id: 2, name: "Shimmer Pad", base: "SHIMMER PAD" },
-  { id: 3, name: "Space Reverse Pad", base: "SPACE REVERSE PAD" },
-  { id: 4, name: "Warm Pad", base: "WARM PAD" },
+  {name: "Hillsong", base: "hillsong_pad"},
+  {name: "Ambient", base: "ambient_pad"},
+  {name: "Harmony", base: "harmony_pad"},
+  {name: "Shimmer", base: "shimmer_pad"},
+  {name: "Atmosferic", base: "atmosferic_pad"},
+  {name: "Guitar Base", base: "guitar_base_pad"},
+  {name: "Swell", base: "swell_pad"},
+  {name: "Cathedral", base: "cathedral_pad"},
+  {name: "Jerusalem", base: "jerusalem_pad"},
+  {name: "Warm", base: "warm_pad"},
+  {name: "Starred", base: "starred_pad"},
+  {name: "Reverse Fx", base: "reverse_fx_pad"},
+  {name: "Celebre", base: "celebre_pad"},
+  {name: "Guitar Solo", base: "guitar_solo_pad"}
 ];
+
+
+export const defaultVolume = 0.3;
