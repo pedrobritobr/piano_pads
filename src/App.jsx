@@ -31,10 +31,21 @@ export default function TrackMixer() {
   const [isLandscape, setIsLandscape] = useState(
     window.matchMedia("(orientation: landscape)").matches
   );
+  const [logs, setLogs] = useState([]);
+  const [showLogs, setShowLogs] = useState(false);
 
   const playerRefs = useRef({});
   const transport = Tone.getTransport();
   const wakeLockRef = useRef(null);
+
+  // Função helper para adicionar logs
+  const addLog = (message, type = "info") => {
+    const timestamp = new Date().toLocaleTimeString("pt-BR");
+    setLogs((prev) => [
+      ...prev.slice(-50), // Mantém apenas os últimos 50 logs
+      { message, type, timestamp, id: Date.now() },
+    ]);
+  };
 
   useEffect(() => {
     const initVolumes = {};
@@ -46,7 +57,12 @@ export default function TrackMixer() {
     setVolumes(initVolumes);
     setMuted(initMuted);
 
-    const listener = (e) => setIsLandscape(e.matches);
+    addLog("Aplicativo inicializado", "success");
+
+    const listener = (e) => {
+      setIsLandscape(e.matches);
+      addLog(`Orientação alterada: ${e.matches ? "Paisagem" : "Retrato"}`, "info");
+    };
     const mq = window.matchMedia("(orientation: landscape)");
     mq.addEventListener("change", listener);
 
@@ -55,10 +71,12 @@ export default function TrackMixer() {
       try {
         if ("wakeLock" in navigator) {
           wakeLockRef.current = await navigator.wakeLock.request("screen");
-          console.log("Wake Lock ativado - tela permanecerá ligada");
+          addLog("Wake Lock ativado - tela permanecerá ligada", "success");
+        } else {
+          addLog("Wake Lock não suportado neste navegador", "warning");
         }
       } catch (err) {
-        console.error("Erro ao ativar Wake Lock:", err);
+        addLog(`Erro ao ativar Wake Lock: ${err.message}`, "error");
       }
     };
 
@@ -88,7 +106,12 @@ export default function TrackMixer() {
     setCurrentNote(newNote);
     stopAll();
 
-    if (!newNote) return;
+    if (!newNote) {
+      addLog("Reprodução parada", "info");
+      return;
+    }
+
+    addLog(`Nota selecionada: ${notes.find(n => n.key === newNote)?.label}`, "success");
 
     transport.seconds = 0;
 
@@ -145,16 +168,20 @@ export default function TrackMixer() {
 
       const baseVolume = muted[track.id] ? 0 : volumes[track.id] ?? 0.8;
 
+      addLog(`Carregando: ${track.name}`, "info");
       crossFade(file, baseVolume, track);
     }
 
     if (transport.state !== "started") {
       transport.start();
+      addLog("Transport iniciado", "success");
     }
   };
 
   const handleVolumeChange = (trackId, newVolume) => {
     setVolumes((prev) => ({ ...prev, [trackId]: newVolume }));
+    const track = tracks.find(t => t.id === trackId);
+    addLog(`Volume de ${track?.name}: ${Math.round(newVolume * 100)}%`, "info");
     const refs = playerRefs.current[trackId];
     if (refs && !muted[trackId]) {
       refs.playerA.volume.value = Tone.gainToDb(newVolume);
@@ -165,6 +192,8 @@ export default function TrackMixer() {
   const toggleMute = (trackId) => {
     setMuted((prev) => {
       const newMuted = !prev[trackId];
+      const track = tracks.find(t => t.id === trackId);
+      addLog(`${track?.name}: ${newMuted ? "Mutado" : "Desmutado"}`, "info");
       const refs = playerRefs.current[trackId];
       if (refs) {
         const newVol = newMuted ? 0 : volumes[trackId] ?? 0.8;
@@ -176,6 +205,7 @@ export default function TrackMixer() {
   };
 
   const stopAll = () => {
+    addLog("Parando todas as faixas", "warning");
     Object.values(playerRefs.current).forEach(({ playerA, playerB }) => {
       try {
         playerA.stop();
@@ -308,6 +338,52 @@ export default function TrackMixer() {
           ))}
         </div>
       </div>
+      
+      {/* Botão para mostrar/ocultar logs */}
+      <button
+        onClick={() => setShowLogs(!showLogs)}
+        className="fixed top-4 right-4 bg-gray-800 text-white px-3 py-2 rounded-lg shadow-lg text-xs font-semibold hover:bg-gray-700 transition z-50"
+      >
+        {showLogs ? "Ocultar Logs" : "Mostrar Logs"}
+      </button>
+
+      {/* Painel de Logs */}
+      {showLogs && (
+        <div className="fixed top-16 right-4 w-80 max-h-96 bg-gray-900 text-white rounded-lg shadow-2xl overflow-hidden z-40">
+          <div className="bg-gray-800 px-4 py-2 flex justify-between items-center">
+            <span className="font-semibold text-sm">Console de Logs</span>
+            <button
+              onClick={() => setLogs([])}
+              className="text-xs bg-red-500 hover:bg-red-600 px-2 py-1 rounded transition"
+            >
+              Limpar
+            </button>
+          </div>
+          <div className="overflow-y-auto max-h-80 p-3 space-y-1 text-xs font-mono">
+            {logs.length === 0 ? (
+              <div className="text-gray-400 text-center py-4">Nenhum log ainda</div>
+            ) : (
+              logs.map((log) => (
+                <div
+                  key={log.id}
+                  className={`p-2 rounded ${
+                    log.type === "error"
+                      ? "bg-red-900/50 text-red-200"
+                      : log.type === "warning"
+                      ? "bg-yellow-900/50 text-yellow-200"
+                      : log.type === "success"
+                      ? "bg-green-900/50 text-green-200"
+                      : "bg-gray-800 text-gray-300"
+                  }`}
+                >
+                  <span className="text-gray-500">[{log.timestamp}]</span>{" "}
+                  {log.message}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
       
       {/* Versão do App */}
       <div className="fixed bottom-2 right-2 text-xs text-gray-400">
