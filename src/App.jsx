@@ -180,6 +180,12 @@ export default function TrackMixer() {
             >
               Parar
             </button>
+            <button
+              onClick={toggleFullscreen}
+              className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md shadow-sm"
+            >
+              {isFullscreen ? "Sair Fullscreen" : "Entrar Fullscreen"}
+            </button>
           </div>
         </div>
 
@@ -206,12 +212,6 @@ export default function TrackMixer() {
       </div>
 
       <div className="w-full flex justify-end mb-2">
-        <button
-          onClick={toggleFullscreen}
-          className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-md shadow-sm"
-        >
-          {isFullscreen ? "Sair Fullscreen" : "Entrar Fullscreen"}
-        </button>
       </div>
       {/* QA Tools */}
       {isQA && (

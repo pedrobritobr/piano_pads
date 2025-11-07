@@ -89,7 +89,7 @@ export function TrackControl({ track, volume, muted, isLandscape, onVolumeChange
               color: "#FFFFFF",
             }}
           >
-            {muted ? "U_m" : "Mute"}
+            {muted ? "Desmute" : "Mute"}
           </button>
         </>
       )}
