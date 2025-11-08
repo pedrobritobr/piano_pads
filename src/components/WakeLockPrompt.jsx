@@ -40,11 +40,10 @@ export function WakeLockPrompt({ onAccept, onDecline }) {
         aria-modal="true"
       >
         <div>
-          <h3>🔒Manter Tela Ligada</h3>
+          <h3>🔒Deseja manter Tela Ligada?</h3>
           <p>
-            Deseja manter a tela do dispositivo sempre ativa durante o uso do
-            aplicativo? Isso evita que a tela desligue automaticamente enquanto
-            você toca.
+            Isso evita que a tela desligue automaticamente enquanto os pads são reproduzidos,
+            garantindo que o som continue mesmo quando você toca.
           </p>
         </div>
         <div className="WakeLockPrompt__buttons">

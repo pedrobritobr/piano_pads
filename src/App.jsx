@@ -148,12 +148,12 @@ export default function TrackMixer() {
   return (
     <div className="App">
       {/* Popup de Wake Lock */}
-      {/* {showWakeLockPrompt && (
+      {showWakeLockPrompt && (
         <WakeLockPrompt 
           onAccept={handleWakeLockAccept}
           onDecline={handleWakeLockDecline}
         />
-            )} */}
+            )}
 
       <div className="Main">
         <div className="OptionsPanel">

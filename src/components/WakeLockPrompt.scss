@@ -1,3 +1,5 @@
+@use '../variables' as vars;
+
 .WakeLockPrompt{
   position: fixed;
   top: 1rem;
@@ -23,18 +25,20 @@
   }
 
   button {
+    width: 40%;
+    height: 2.5rem;
     margin-top: 1rem;
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 0.25rem;
-    background-color: #376cdf;
+    background-color: vars.$primary-color;
     color: white;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;
 
     &:hover {
-      background-color: #3f7ae7;
+      background-color: darken(vars.$primary-color, 5%);
     }
   }
 }
