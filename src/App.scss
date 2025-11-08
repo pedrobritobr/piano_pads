@@ -91,12 +91,13 @@
     grid-template-rows: 1fr 1fr;
     gap: 5px 10px;
 
-    height: 100vh;
+    height: 90vh;
+
     .TrackControl {
       background: white;
-      border-radius: 1rem;
+      border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      padding: 1rem;
+      padding: 5px;
 
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -107,7 +108,7 @@
         "track-name track-volume"
         "track-mute track-mute";
       justify-items: start;
-      align-items: baseline;
+      align-items: end;
 
       .track-name {
         grid-area: track-name;
@@ -121,6 +122,7 @@
         appearance: none;
 
         width: 4px;
+        height: 90%;
 
         &::-webkit-slider-runnable-track {
           height: 10px;
