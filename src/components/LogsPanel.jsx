@@ -1,9 +1,16 @@
 import React from "react";
 import packageJson from "../../package.json";
+import "./LogsPanel.scss";
 
 export function LogsPanel({ logs, showLogs, onToggleLogs, onClearLogs }) {
   return (
-    <>
+    <div className="LogsPanel">
+      {/* Versão do App */}
+      <div>v{packageJson.version}</div>
+
+      {/* Botão para mostrar/ocultar logs */}
+      <button onClick={onToggleLogs}>{showLogs ? "Ocultar Logs" : "Mostrar Logs"}</button>
+
       {/* Painel de Logs */}
       {showLogs && (
         <div>
@@ -25,12 +32,6 @@ export function LogsPanel({ logs, showLogs, onToggleLogs, onClearLogs }) {
           </div>
         </div>
       )}
-
-      {/* Botão para mostrar/ocultar logs */}
-      <button onClick={onToggleLogs}>{showLogs ? "Ocultar Logs" : "Mostrar Logs"}</button>
-
-      {/* Versão do App */}
-      <div>v{packageJson.version}</div>
-    </>
+    </div>
   );
 }

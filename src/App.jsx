@@ -176,11 +176,11 @@ export default function TrackMixer() {
             />
           ))}
         </div>
-
+{/* 
         <div className="FilterControls">
           <p>HPF</p>
           <p>LPF</p>
-        </div>
+        </div> */}
 
         <div className="MixerTracks">
           {tracks.map((track) => (
