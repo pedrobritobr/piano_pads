@@ -86,129 +86,94 @@
   .MixerTracks {
     grid-area: MixerTracks;
 
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: 5px 10px;
 
-    margin-top: 2rem;
-    width: 100%;
-    max-width: 600px;
+    height: 100vh;
+    .TrackControl {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
 
-    .track-volume {
-      -webkit-appearance: none;
-      appearance: none;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 0.9fr 0.1fr;
+      gap: 5px 10px;
+      grid-auto-flow: row;
+      grid-template-areas:
+        "track-name track-volume"
+        "track-mute track-mute";
+      justify-items: start;
+      align-items: baseline;
 
-      writing-mode: sideways-lr;
-      width: 4px;
-      height: 100px;
-
-      &::-webkit-slider-runnable-track {
-        height: 10px;
-        background: #e5e7eb;
-        border-radius: 9999px;
+      .track-name {
+        grid-area: track-name;
       }
 
-      &::-webkit-slider-thumb {
+      .track-volume {
+        grid-area: track-volume;
+
+        writing-mode: sideways-lr;
         -webkit-appearance: none;
         appearance: none;
-        width: 20px;
-        height: 20px;
-        border-radius: 9999px;
-        background: #6366f1;
-        border: 2px solid #ffffff;
-        box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12);
-        margin-top: -9px;
-        cursor: pointer;
+
+        width: 4px;
+
+        &::-webkit-slider-runnable-track {
+          height: 10px;
+          background: #e5e7eb;
+          border-radius: 9999px;
+        }
+
+        &::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 20px;
+          height: 20px;
+          border-radius: 9999px;
+          background: #6366f1;
+          box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12);
+          margin-top: -9px;
+          cursor: pointer;
+        }
+
+        &::-moz-range-track {
+          height: 10px;
+          background: #e5e7eb;
+          border-radius: 9999px;
+        }
+
+        &::-moz-range-thumb {
+          width: 20px;
+          height: 20px;
+          border-radius: 9999px;
+          background: #6366f1;
+          box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12);
+          cursor: pointer;
+        }
       }
 
-      &::-moz-range-track {
-        height: 10px;
-        background: #e5e7eb;
-        border-radius: 9999px;
-      }
+      .track-mute {
+        grid-area: track-mute;
+        justify-self: center;
 
-      &::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        border-radius: 9999px;
-        background: #6366f1;
-        border: 2px solid #ffffff;
-        box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12);
-        cursor: pointer;
+        &.on {
+          background-color: #5997f9;
+          color: white;
+        }
+
+        &.off {
+          background-color: #ad1010;
+          color: white;
+        }
       }
     }
-
-    // .track-volume {
-    //   -webkit-appearance: none;
-    //   appearance: none;
-    //   background: transparent;
-    //   width: 60px;
-    //   height: 150px;
-    //   writing-mode: bt-lr; // bottom to top
-    //   transform: rotate(180deg); // inverte o sentido pra parecer natural
-    //   cursor: pointer;
-
-    //   &::-webkit-slider-runnable-track {
-    //     width: 10px;
-    //     height: 100%;
-    //     background: #e5e7eb;
-    //     border-radius: 9999px;
-    //   }
-
-    //   &::-webkit-slider-thumb {
-    //     -webkit-appearance: none;
-    //     appearance: none;
-    //     width: 28px;
-    //     height: 28px;
-    //     border-radius: 9999px;
-    //     background: #6366f1;
-    //     border: 2px solid #ffffff;
-    //     box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12);
-    //     margin-top: -9px;
-    //     cursor: pointer;
-    //     transform: translateX(-9px); // centraliza o thumb
-    //   }
-
-    //   &::-moz-range-track {
-    //     width: 10px;
-    //     height: 100%;
-    //     background: #e5e7eb;
-    //     border-radius: 9999px;
-    //   }
-
-    //   &::-moz-range-thumb {
-    //     width: 28px;
-    //     height: 28px;
-    //     border-radius: 9999px;
-    //     background: #6366f1;
-    //     border: 2px solid #ffffff;
-    //     box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12);
-    //     cursor: pointer;
-    //   }
-    // }
-
   }
 }
 
-
-.TrackControl {
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  width: 100%;
-  max-width: 200px;
-}
-
-.vertical-fader {
-  writing-mode: bt-lr;
-  -webkit-appearance: slider-vertical;
-  appearance: slider-vertical;
-  width: 6px;
-  height: 150px;
-  transform: rotate(180deg);
-}
 
 // /* Landscape */
 // @media (orientation: landscape) {
