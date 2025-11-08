@@ -31,7 +31,7 @@
 .Main {
   display: grid;
   grid-template-columns: 0.5fr 1fr;
-  grid-template-rows: 0.3fr 1.4fr 0.3fr;
+  grid-template-rows: 10dvh 50dvh 10dvh;
   gap: 5px 10px;
   grid-auto-flow: row;
   grid-template-areas:
@@ -71,11 +71,13 @@
 
       font-size: 1.5rem;
       font-weight: 700;
+
+      color: transparentize(vars.$font-color, 0.5);
     }
     
     .NoteButton.active {
       background-color: vars.$primary-color;
-      color: white;
+      color: vars.$background-color;
     }
   }
 
@@ -94,7 +96,7 @@
     height: 90vh;
 
     .TrackControl {
-      background: white;
+      background: vars.$background-color;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       padding: 5px;
@@ -166,12 +168,12 @@
 
         &.on {
           background-color: vars.$primary-color;
-          color: white;
+          color: vars.$background-color;
         }
 
         &.off {
           background-color: #d72b22;
-          color: white;
+          color: vars.$background-color;
         }
       }
     }
