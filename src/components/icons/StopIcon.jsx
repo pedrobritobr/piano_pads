@@ -1,4 +1,4 @@
-export default function StopIcon({ size = 28, color = "#ad1010" }) {
+export default function StopIcon({ size = 28, color = "#d72b22" }) {
   return (
     <svg
       viewBox="0 0 24 24"
