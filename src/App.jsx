@@ -27,6 +27,7 @@ export default function TrackMixer() {
     handleVolumeChange,
     toggleMute,
     stopAll,
+    deselectNote,
   } = useAudioPlayer(addLog);
   const isLandscape = useOrientation();
 
@@ -160,7 +161,15 @@ export default function TrackMixer() {
           <button onClick={toggleFullscreen}>
             {isFullscreen ? <FullscreenExitIcon size={20} /> : <FullscreenIcon size={20} />}
           </button>
-          <button onClick={stopAll}>
+          <button
+            onClick={async () => {
+              // desmarca a nota imediatamente na UI, depois inicia o stop (fade)
+              try {
+                deselectNote?.();
+              } catch (e) {}
+              await stopAll();
+            }}
+          >
             <StopIcon size={20} />
           </button>
         </div>

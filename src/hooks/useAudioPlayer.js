@@ -26,21 +26,26 @@ export function useAudioPlayer(addLog) {
 
   const FADE_TIME = 0.5;
 
+  // Tempo de fade para ações iniciadas pelo usuário (start/stop/mute/unmute)
+  const USER_FADE_TIME = 4;
+
   // Mantém as refs atualizadas
   volumesRef.current = volumes;
   mutedRef.current = muted;
 
-  const crossFade = async (file, baseVolume, track, semitoneOffset = 0) => {
+  const crossFade = async (file, baseVolume, track, semitoneOffset = 0, initialFade = FADE_TIME) => {
     const playerA = new Tone.Player({
       url: file,
       loop: true,
       autostart: false,
+      volume: -Infinity,
     }).toDestination();
-
+    
     const playerB = new Tone.Player({
       url: file,
       loop: true,
       autostart: false,
+      volume: -Infinity,
     }).toDestination();
 
     await Promise.all([playerA.load(file), playerB.load(file)]);
@@ -58,8 +63,13 @@ export function useAudioPlayer(addLog) {
       }
     }
 
-    playerA.volume.value = Tone.gainToDb(baseVolume);
-    playerB.volume.value = -Infinity;
+    // Começam silenciosos; aplicaremos um fade-in inicial quando for necessário
+    try {
+      playerA.volume.value = -Infinity;
+    } catch (e) {}
+    try {
+      playerB.volume.value = -Infinity;
+    } catch (e) {}
 
     // Ajusta duração do loop com base no playbackRate
     const duration = playerA.buffer.duration / (playbackRate || 1);
@@ -76,9 +86,10 @@ export function useAudioPlayer(addLog) {
         if (!next.buffer.loaded) return;
 
         // Obtém o volume atual no momento do loop
-  const currentVolume = mutedRef.current[track.base] ? 0 : volumesRef.current[track.base] ?? defaultVolume;
+        const currentVolume = mutedRef.current[track.base] ? 0 : volumesRef.current[track.base] ?? defaultVolume;
 
-        next.start(startAt);
+        // start next exactly at the scheduled time provided by the transport callback
+        next.start(time);
         next.volume.cancelAndHoldAtTime(time);
         current.volume.cancelAndHoldAtTime(time);
 
@@ -92,20 +103,103 @@ export function useAudioPlayer(addLog) {
 
     scheduleNext(startAt);
 
+    // Aplica um fade-in inicial ao player atual quando ele começar (ação do usuário)
+    try {
+      transport.scheduleOnce((time) => {
+        try {
+          current.volume.cancelAndHoldAtTime(time);
+        } catch (e) {}
+        try {
+          current.volume.linearRampTo(Tone.gainToDb(baseVolume), initialFade);
+        } catch (e) {}
+      }, startAt);
+    } catch (e) {
+      // fallback imediato
+      try {
+        current.volume.linearRampTo(Tone.gainToDb(baseVolume), initialFade);
+      } catch (err) {}
+    }
+
     playerRefs.current[track.base] = { playerA, playerB };
   };
 
-  const stopAll = () => {
+    // Faz fade out e remove players fornecidos (aceita um map ou array de refs)
+    const fadeOutAndDispose = (refsCollection, fadeDuration = USER_FADE_TIME) => {
+      const refsArray = Array.isArray(refsCollection)
+        ? refsCollection
+        : Object.values(refsCollection || {});
+
+      if (refsArray.length === 0) return Promise.resolve();
+
+      refsArray.forEach(({ playerA, playerB }) => {
+        try {
+          playerA.volume.cancelAndHoldAtTime(Tone.now());
+          playerA.volume.linearRampTo(-Infinity, fadeDuration);
+        } catch (e) {}
+        try {
+          playerB.volume.cancelAndHoldAtTime(Tone.now());
+          playerB.volume.linearRampTo(-Infinity, fadeDuration);
+        } catch (e) {}
+      });
+
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          refsArray.forEach(({ playerA, playerB }) => {
+            try {
+              playerA.stop();
+            } catch (e) {}
+            try {
+              playerB.stop();
+            } catch (e) {}
+            try {
+              playerA.dispose?.();
+            } catch (e) {}
+            try {
+              playerB.dispose?.();
+            } catch (e) {}
+          });
+          resolve();
+        }, Math.round(fadeDuration * 1000) + 50);
+      });
+    };
+
+  const stopAll = async (opts = { fadeDuration: USER_FADE_TIME, clearNote: true }) => {
+    const fadeDuration = opts.fadeDuration ?? USER_FADE_TIME;
+    const clearNote = opts.clearNote ?? true;
     addLog?.("Parando todas as faixas", "warning");
-    Object.values(playerRefs.current).forEach(({ playerA, playerB }) => {
-      try {
-        playerA.stop();
-        playerB.stop();
-      } catch {}
+
+    const refsMap = { ...playerRefs.current };
+    const refsArr = Object.values(refsMap);
+    if (refsArr.length === 0) {
+      transport.stop();
+      transport.cancel(0);
+      playerRefs.current = {};
+      if (clearNote && currentNote !== null) {
+        setCurrentNote(null);
+        addLog?.("Nota desmarcada", "info");
+      }
+      return;
+    }
+
+    // Faz fade out e dispose de todos os players atuais
+    await fadeOutAndDispose(refsArr, fadeDuration);
+
+    // Limpa o registry que pode ter sido parcialmente sobrescrito por novos players
+    // Removemos apenas as referências que ainda apontavam para os players antigos
+    Object.keys(refsMap).forEach((k) => {
+      const existing = playerRefs.current[k];
+      // se a referência atual é a mesma que a antiga, remove
+      if (existing && (existing.playerA === refsMap[k].playerA || existing.playerB === refsMap[k].playerB)) {
+        delete playerRefs.current[k];
+      }
     });
-    playerRefs.current = {};
+
     transport.stop();
     transport.cancel(0);
+    if (clearNote && currentNote !== null) {
+      setCurrentNote(null);
+      addLog?.("Nota desmarcada", "info");
+    }
   };
 
   const handleNoteClick = async (noteKey, semitone) => {
@@ -113,16 +207,27 @@ export function useAudioPlayer(addLog) {
 
     const newNote = currentNote === noteKey ? null : noteKey;
     setCurrentNote(newNote);
-    stopAll();
 
+    // Se estamos apenas parando a reprodução (clicou na mesma nota para desligar)
     if (!newNote) {
+      await stopAll({ clearNote: true });
       addLog?.("Reprodução parada", "info");
       return;
     }
 
+    const isSwitch = currentNote && currentNote !== newNote;
+
+    // Captura os players atuais para fazermos fade out depois (se for troca)
+    const oldRefsMap = isSwitch ? { ...playerRefs.current } : null;
+
     addLog?.(`Nota selecionada: ${noteKey}`, "success");
 
+    // Reinicia o transport para o início e garante que ele esteja STARTED
     transport.seconds = 0;
+    if (transport.state !== "started") {
+      transport.start();
+      addLog?.("Transport iniciado", "success");
+    }
 
     for (const track of tracks) {
       // Vamos carregar sempre a nota C e transpor para a nota desejada
@@ -141,7 +246,8 @@ export function useAudioPlayer(addLog) {
       // implementamos carregamento tentando primeiro o C e, em caso de falha, usar o arquivo da nota direta
       const tryLoadAndCrossfade = async () => {
         try {
-          await crossFade(baseFile, baseVolume, track, semitone);
+          // Ao iniciar por ação do usuário, pedimos um fade-in maior
+          await crossFade(baseFile, baseVolume, track, semitone, USER_FADE_TIME);
         } catch (err) {
           addLog?.(`Erro ao carregar amostra para ${track.name}: ${err?.message ?? err}`, "error");
         }
@@ -150,10 +256,24 @@ export function useAudioPlayer(addLog) {
       tryLoadAndCrossfade();
     }
 
-    if (transport.state !== "started") {
-      transport.start();
-      addLog?.("Transport iniciado", "success");
+    // Se for troca de nota: após iniciar novos players, faz fade out e remove os antigos
+    if (isSwitch && oldRefsMap) {
+      // aguarda um pequeno delay para garantir que os novos players foram criados e registrados
+      setTimeout(() => {
+        // fade out os refs antigos sem afetar as novas referências
+        fadeOutAndDispose(Object.values(oldRefsMap), USER_FADE_TIME).then(() => {
+          // remove as chaves antigas que ainda apontem para os players antigos
+          Object.keys(oldRefsMap).forEach((k) => {
+            const existing = playerRefs.current[k];
+            if (existing && (existing.playerA === oldRefsMap[k].playerA || existing.playerB === oldRefsMap[k].playerB)) {
+              delete playerRefs.current[k];
+            }
+          });
+        });
+      }, 50);
     }
+
+    // transport já iniciado acima
   };
 
   const handleVolumeChange = (trackId, newVolume, trackName) => {
@@ -180,21 +300,32 @@ export function useAudioPlayer(addLog) {
     const refs = playerRefs.current[trackId];
 
     if (newMuted) {
-      // Ao mutar: se existirem players, parar e descartá-los
+      // Ao mutar: se existirem players, faz fade out e descarta após o fade
       if (refs) {
         try {
-          refs.playerA.stop();
-        } catch {}
+          refs.playerA.volume.cancelAndHoldAtTime(Tone.now());
+          refs.playerA.volume.linearRampTo(-Infinity, USER_FADE_TIME);
+        } catch (e) {}
         try {
-          refs.playerB.stop();
-        } catch {}
-        try {
-          refs.playerA.dispose?.();
-        } catch {}
-        try {
-          refs.playerB.dispose?.();
-        } catch {}
-        delete playerRefs.current[trackId];
+          refs.playerB.volume.cancelAndHoldAtTime(Tone.now());
+          refs.playerB.volume.linearRampTo(-Infinity, USER_FADE_TIME);
+        } catch (e) {}
+
+        setTimeout(() => {
+          try {
+            refs.playerA.stop();
+          } catch (e) {}
+          try {
+            refs.playerB.stop();
+          } catch (e) {}
+          try {
+            refs.playerA.dispose?.();
+          } catch (e) {}
+          try {
+            refs.playerB.dispose?.();
+          } catch (e) {}
+          delete playerRefs.current[trackId];
+        }, Math.round(USER_FADE_TIME * 1000) + 50);
       }
       addLog?.(`${trackName}: áudio descarregado`, "info");
       return;
@@ -204,13 +335,15 @@ export function useAudioPlayer(addLog) {
     // - Se já temos players, apenas restaura o volume.
     // - Se não temos players e o transport está tocando com uma nota selecionada, recarrega a amostra.
     if (refs) {
-  const newVol = volumes[trackId] ?? defaultVolume;
+      const newVol = volumes[trackId] ?? defaultVolume;
       try {
-        refs.playerA.volume.value = Tone.gainToDb(newVol);
-      } catch {}
+        refs.playerA.volume.cancelAndHoldAtTime(Tone.now());
+        refs.playerA.volume.linearRampTo(Tone.gainToDb(newVol), USER_FADE_TIME);
+      } catch (e) {}
       try {
-        refs.playerB.volume.value = Tone.gainToDb(newVol);
-      } catch {}
+        refs.playerB.volume.cancelAndHoldAtTime(Tone.now());
+        refs.playerB.volume.linearRampTo(Tone.gainToDb(newVol), USER_FADE_TIME);
+      } catch (e) {}
       return;
     }
 
@@ -222,12 +355,12 @@ export function useAudioPlayer(addLog) {
       const noteObj = notes.find((n) => n.key === currentNote);
       const semitone = noteObj ? noteObj.semitone : 0;
       const baseFile = `/pads/${track.base}.mp3`;
-  const baseVolume = volumes[trackId] ?? defaultVolume;
+      const baseVolume = volumes[trackId] ?? defaultVolume;
 
       addLog?.(`${trackName}: recarregando áudio após desmutar`, "info");
       (async () => {
         try {
-          await crossFade(baseFile, baseVolume, track, semitone);
+          await crossFade(baseFile, baseVolume, track, semitone, USER_FADE_TIME);
         } catch (err) {
           addLog?.(`Erro ao recarregar amostra para ${track.name}: ${err?.message ?? err}`, "error");
         }
@@ -243,5 +376,12 @@ export function useAudioPlayer(addLog) {
     handleVolumeChange,
     toggleMute,
     stopAll,
+    // Permite que o componente pai desmarque a nota imediatamente antes de outras ações
+    deselectNote: () => {
+      if (currentNote !== null) {
+        setCurrentNote(null);
+        addLog?.("Nota desmarcada", "info");
+      }
+    },
   };
 }
