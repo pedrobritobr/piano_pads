@@ -1,7 +1,12 @@
 @use './variables' as vars;
 
 * { box-sizing: border-box; }
-html, body, #root { height: 100%; }
+html, body, #root {
+    height: 100dvh;
+    width: 100dvw;
+    background: red;
+}
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
