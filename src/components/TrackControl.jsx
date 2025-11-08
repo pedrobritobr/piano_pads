@@ -2,7 +2,7 @@ import React from "react";
 
 export function TrackControl({ track, volume, muted, isLandscape, onVolumeChange, onToggleMute }) {
   return (
-    <div>
+    <div className="TrackControl">
       {isLandscape ? (
         <>
           {/* Landscape: track name (vertical, bottom-to-top) on the left, slider + mute on the right */}

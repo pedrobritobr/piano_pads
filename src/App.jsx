@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import "./App.scss";
+
 import { notes, tracks, defaultVolume } from "./constants/music";
 import { useLogs } from "./hooks/useLogs";
 import { useWakeLock } from "./hooks/useWakeLock";
@@ -8,6 +10,10 @@ import { WakeLockPrompt } from "./components/WakeLockPrompt";
 import { NoteButton } from "./components/NoteButton";
 import { TrackControl } from "./components/TrackControl";
 import { LogsPanel } from "./components/LogsPanel";
+
+import FullscreenIcon from "./components/icons/FullscreenIcon";
+import FullscreenExitIcon from "./components/icons/FullscreenExitIcon";
+import StopIcon from "./components/icons/StopIcon";
 
 export default function TrackMixer() {
   const [isFullscreen, setIsFullscreen] = React.useState(false);
@@ -38,7 +44,7 @@ export default function TrackMixer() {
       );
       setIsFullscreen(fs);
     }
-    document.body.classList.add("no-scroll");
+    // document.body.classList.add("no-scroll");
 
     document.addEventListener("fullscreenchange", onFullScreenChange);
     document.addEventListener("webkitfullscreenchange", onFullScreenChange);
@@ -140,18 +146,26 @@ export default function TrackMixer() {
   }
 
   return (
-    <div>
+    <div className="App">
       {/* Popup de Wake Lock */}
-      {showWakeLockPrompt && (
+      {/* {showWakeLockPrompt && (
         <WakeLockPrompt 
           onAccept={handleWakeLockAccept}
           onDecline={handleWakeLockDecline}
         />
-      )}
+            )} */}
 
-      <div>
-        {/* Notes */}
-        <div>
+      <div className="Main">
+        <div className="OptionsPanel">
+          <button onClick={toggleFullscreen}>
+            {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+          </button>
+          <button onClick={stopAll}>
+            <StopIcon />
+          </button>
+        </div>
+
+        <div className="Notes">
           {notes.map((n) => (
             <NoteButton
               key={n.key}
@@ -161,18 +175,14 @@ export default function TrackMixer() {
               isLandscape={isLandscape}
             />
           ))}
-          <div>
-            <button onClick={stopAll}>
-              Parar
-            </button>
-            <button onClick={toggleFullscreen}>
-              {isFullscreen ? "Sair Fullscreen" : "Entrar Fullscreen"}
-            </button>
-          </div>
         </div>
 
-        {/* Tracks */}
-        <div>
+        <div className="FilterControls">
+          <p>HPF</p>
+          <p>LPF</p>
+        </div>
+
+        <div className="MixerTracks">
           {tracks.map((track) => (
             <TrackControl
               key={track.base}
@@ -187,8 +197,6 @@ export default function TrackMixer() {
         </div>
       </div>
 
-  <div>
-  </div>
       {/* QA Tools */}
       {isQA && (
         <LogsPanel
