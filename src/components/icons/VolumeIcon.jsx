@@ -1,19 +1,28 @@
-export default function PlayIcon({ size = 24, color = "#09244B" }) {
+export default function VolumeIcon({ size = 24, color = "#09244B" }) {
   return (
     <svg
-      viewBox="0 0 800 800"
+      viewBox="0 0 24 24"
       width={size}
       height={size}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        d="M363.9,288.4L468,201.7c32.6-27.1,82-4,82,38.4v319.8c0,42.4-49.4,65.6-82,38.4l-104.1-86.7
-        c-9-7.5-20.3-11.6-32-11.6h-65.2c-27.6,0-50-22.4-50-50V350c0-27.6,22.4-50,50-50h65.2C343.6,300,354.9,295.9,363.9,288.4z"
+        d="M16 9V9C17.2111 10.8167 17.2111 13.1833 16 15V15"
         stroke={color}
-        strokeWidth="66.6667"
-        strokeMiterlimit="133.3333"
-        fill="none"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M20 8V8C21.259 10.5181 21.259 13.4819 20 16V16"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M7.4172 8.65233L10.5397 6.05023C11.5167 5.23607 13 5.93081 13 7.20256V16.7974C13 18.0692 11.5167 18.7639 10.5397 17.9498L7.4172 15.3477C7.14763 15.123 6.80783 15 6.45693 15H4.5C3.67157 15 3 14.3284 3 13.5V10.5C3 9.67157 3.67157 9 4.5 9H6.45693C6.80783 9 7.14763 8.87698 7.4172 8.65233Z"
+        stroke={color}
+        strokeWidth="2"
       />
     </svg>
   );

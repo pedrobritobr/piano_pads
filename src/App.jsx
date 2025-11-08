@@ -158,10 +158,10 @@ export default function TrackMixer() {
       <div className="Main">
         <div className="OptionsPanel">
           <button onClick={toggleFullscreen}>
-            {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+            {isFullscreen ? <FullscreenExitIcon size={20} /> : <FullscreenIcon size={20} />}
           </button>
           <button onClick={stopAll}>
-            <StopIcon />
+            <StopIcon size={20} />
           </button>
         </div>
 
