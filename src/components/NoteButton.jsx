@@ -1,11 +1,10 @@
 import React from "react";
 
-export function NoteButton({ note, isActive, onClick, isLandscape }) {
+export function NoteButton({ note, isActive, onClick }) {
   return (
     <button
       onClick={() => onClick(note.key, note.semitone)}
-      className="NoteButton"
-      aria-pressed={isActive}
+      className={`NoteButton ${isActive ? "active" : ""}`}
     >
       {note.key}
     </button>
