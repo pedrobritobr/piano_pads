@@ -91,6 +91,100 @@
     margin-top: 2rem;
     width: 100%;
     max-width: 600px;
+
+    .track-volume {
+      -webkit-appearance: none;
+      appearance: none;
+
+      writing-mode: sideways-lr;
+      width: 4px;
+      height: 100px;
+
+      &::-webkit-slider-runnable-track {
+        height: 10px;
+        background: #e5e7eb;
+        border-radius: 9999px;
+      }
+
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 9999px;
+        background: #6366f1;
+        border: 2px solid #ffffff;
+        box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12);
+        margin-top: -9px;
+        cursor: pointer;
+      }
+
+      &::-moz-range-track {
+        height: 10px;
+        background: #e5e7eb;
+        border-radius: 9999px;
+      }
+
+      &::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 9999px;
+        background: #6366f1;
+        border: 2px solid #ffffff;
+        box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12);
+        cursor: pointer;
+      }
+    }
+
+    // .track-volume {
+    //   -webkit-appearance: none;
+    //   appearance: none;
+    //   background: transparent;
+    //   width: 60px;
+    //   height: 150px;
+    //   writing-mode: bt-lr; // bottom to top
+    //   transform: rotate(180deg); // inverte o sentido pra parecer natural
+    //   cursor: pointer;
+
+    //   &::-webkit-slider-runnable-track {
+    //     width: 10px;
+    //     height: 100%;
+    //     background: #e5e7eb;
+    //     border-radius: 9999px;
+    //   }
+
+    //   &::-webkit-slider-thumb {
+    //     -webkit-appearance: none;
+    //     appearance: none;
+    //     width: 28px;
+    //     height: 28px;
+    //     border-radius: 9999px;
+    //     background: #6366f1;
+    //     border: 2px solid #ffffff;
+    //     box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12);
+    //     margin-top: -9px;
+    //     cursor: pointer;
+    //     transform: translateX(-9px); // centraliza o thumb
+    //   }
+
+    //   &::-moz-range-track {
+    //     width: 10px;
+    //     height: 100%;
+    //     background: #e5e7eb;
+    //     border-radius: 9999px;
+    //   }
+
+    //   &::-moz-range-thumb {
+    //     width: 28px;
+    //     height: 28px;
+    //     border-radius: 9999px;
+    //     background: #6366f1;
+    //     border: 2px solid #ffffff;
+    //     box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.12);
+    //     cursor: pointer;
+    //   }
+    // }
+
   }
 }
 
