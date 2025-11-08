@@ -1,16 +1,15 @@
 diminuir gap y
 exibir msg de instalar app no fulls no ios
-clarear vermelho
 efeito no stop
 desmarcar nota no stop
-
-retornar popup block
 
 alterar font
 
 corrigir audios
 fadein fadeout
 
+---clarear vermelho
+---retornar popup block
 ---mover tracks pra direita
 ---aumentar botoes notas
 ---diminuir full/stop
